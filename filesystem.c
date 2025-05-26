@@ -1,6 +1,7 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
+#include "filesystem.h"
 
 FILE* open_or_create_fs(const char* path) {
     FILE* file = fopen(path, "r+");
