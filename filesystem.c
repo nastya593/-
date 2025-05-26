@@ -31,7 +31,7 @@ char* read_full_fs(FILE* file) {
 }
 
 void write_full_fs(FILE* file, const char* data) {
-    freopen(NULL, "w+", file); // очистить содержимое файла
+    freopen(NULL, "w+", file); 
     fputs(data, file);
     fflush(file);
 }
@@ -133,5 +133,93 @@ if (new_count == 0 || strcmp(new_lines[new_count -1], "/") !=0 ) {
    free(new_lines);
    free(temp_str);
 
+    int add_file_to_fs(const char* fs_path, const char* filename) {
+    FILE *fs = fopen(fs_path, "r+");
+    if (!fs) {
+        perror("Ошибка открытия файла системы");
+        return -1;
+    }
+        
+    fseek(fs, 0, SEEK_END);
+    long size = ftell(fs);
+    fseek(fs, 0, SEEK_SET);
+
+    char *content = malloc(size + 1024); 
+    if (!content) {
+        fclose(fs);
+        perror("Ошибка выделения памяти");
+        return -1;
+    }
+
+    fread(content, 1, size, fs);
+    content[size] = '\0';
+
+    strcat(content, "\n");
+    strcat(content, filename);
+
+    freopen(fs_path, "w", fs);
+    fwrite(content, 1, strlen(content), fs);
+
+    free(content);
+    fclose(fs);
+    return 0;
+}
+
+int modify_file_in_fs(const char* fs_path, const char* filename, const char* new_content) {
+    FILE *fs = fopen(fs_path, "r");
+    if (!fs) {
+        perror("Ошибка открытия файла системы");
+        return -1;
+    }
+
+    fseek(fs, 0, SEEK_END);
+    long size = ftell(fs);
+    fseek(fs, 0, SEEK_SET);
+
+    char *content = malloc(size + 1024); 
+    if (!content) {
+        fclose(fs);
+        perror("Ошибка выделения памяти");
+        return -1;
+    }
+
+    fread(content, 1, size, fs);
+    content[size] = '\0';
+
+    fclose(fs);
+
+    char *lines[1024]; 
+    int line_count = 0;
+
+    char *ptr = strtok(content, "\n");
+    while (ptr != NULL && line_count < 1024) {
+        lines[line_count++] = ptr;
+        ptr = strtok(NULL, "\n");
+    }
+
+    char *new_lines[1024];
+    int new_line_count = 0;
+
+    for (int i = 0; i < line_count; i++) {
+        if (strcmp(lines[i], filename) != 0) {
+            new_lines[new_line_count++] = lines[i];
+        }
+    }
+
+    new_lines[new_line_count++] = (char*)new_content;
+
+    FILE *write_fs = fopen(fs_path, "w");
+    
+    if (!write_fs) {
+        perror("Ошибка открытия файла для записи");
+        return -1;
+    }
+
+    for (int i = 0; i < new_line_count; i++) {
+        fprintf(write_fs, "%s\n", new_lines[i]);
+    }
+
+    fclose(write_fs);
+    
    return 0; 
 }
