@@ -50,5 +50,48 @@ int main() {
 
     fs_free(&fs);
 
+ {
+    FILE *file = fopen("example.txt", "w"); 
+    if (file == NULL) {
+        printf("Ошибка при создании файла\n");
+        return 1;
+    }
+    fprintf(file, "Привет, файл!\n"); 
+    fclose(file);
+    {
+    const char *filename = "example.txt";
+    if (remove(filename) == 0) {
+        printf("Файл успешно удалён\n");
+    } else {
+        printf("Ошибка при удалении файла\n");
+    }
+
+void modify_file(const char *filename, const char *content) {
+    FILE *file = fopen(filename, "a");
+    if (file == NULL) {
+        printf("Ошибка при открытии файла: %s\n", filename);
+        return;
+    }
+    fprintf(file, "%s\n", content); 
+    printf("Содержимое добавлено в файл: %s\n", filename);
+
+    fclose(file); 
+}
+#include <stdio.h>
+
+void view_file(const char *filename) {
+    FILE *file = fopen(filename, "r"); 
+    if (file == NULL) {
+        printf("Ошибка при открытии файла: %s\n", filename);
+        return;
+    }
+    char line[256]; 
+
+    printf("Содержимое файла %s:\n", filename);
+    while (fgets(line, sizeof(line), file)) { 
+        printf("%s", line); 
+    }
+    fclose(file); 
+}
     return 0;
 }
