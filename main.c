@@ -95,3 +95,74 @@ void view_file(const char *filename) {
 }
     return 0;
 }
+
+
+void create_file(const char *path) {
+    FILE *file = fopen(path, "w");
+    if (file) {
+        fprintf(file, ""); 
+        fclose(file);
+        printf("Файл %s создан.\n", path);
+    } else {
+        perror("Ошибка при создании файла");
+    }
+}
+void delete_file(const char *path) {
+    if (remove(path) == 0) {
+        printf("Файл %s удален.\n", path);
+    } else {
+        perror("Ошибка при удалении файла");
+    }
+}
+void modify_file(const char *path, const char *text) {
+    FILE *file = fopen(path, "a");
+    if (file) {
+        fprintf(file, "%s\n", text);
+        fclose(file);
+        printf("Файл %s изменен.\n", path);
+    } else {
+        perror("Ошибка при изменении файла");
+    }
+}
+void view_file(const char *path) {
+    char ch;
+    FILE *file = fopen(path, "r");
+    if (file) {
+        while ((ch = fgetc(file)) != EOF) {
+            putchar(ch);
+        }
+        fclose(file);
+    } else {
+        perror("Ошибка при просмотре файла");
+    }
+}
+int main() {
+    char command[256];
+    while (1) {
+        printf("> ");
+        scanf(" %[^\n]", command); 
+
+        char *token = strtok(command, " ");
+        if (token) {
+            if (strcmp(token, "создать") == 0) {
+                token = strtok(NULL, " ");
+                create_file(token);
+            } else if (strcmp(token, "удалить") == 0) {
+                token = strtok(NULL, " ");
+                delete_file(token);
+            } else if (strcmp(token, "изменить") == 0) {
+                token = strtok(NULL, " ");
+                char *text = strtok(NULL, "\0"); 
+                modify_file(token, text);
+            } else if (strcmp(token, "посмотреть") == 0) {
+                token = strtok(NULL, " ");
+                view_file(token);
+            } else {
+                printf("Неизвестная команда.\n");
+            }
+        }
+    }
+    return 0;
+}
+
+
